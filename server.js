@@ -4,7 +4,8 @@
 var express = require("express"),
     stylus = require("stylus"),
     logger = require("morgan"),
-    bodyParser = require("body-parser");
+    bodyParser = require("body-parser"),
+    mongoose = require("mongoose");
 
 var env = process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
@@ -26,13 +27,43 @@ app.use(stylus.middleware(
     }
 ));
 
-app.use(express.static(__dirname +"/public"));
+if(env==="development"){
+    mongoose.connect("mongodb://localhost/multivision");
+}
+else {
+    mongoose.connect("mongodb://ajagtap:multivision@ds037252.mongolab.com:37252/multivision");
+}
 
-app.get("*",function(req,res){
-    res.render("index");
+var db = mongoose.connection;
+
+db.on("error",console.error.bind(console,"connection error..."));
+
+db.once("open",function(){
+    console.log("DB connection opened");
 });
 
-var port=3030;
+var messageSchema = mongoose.Schema({message: String});
+
+var Message = mongoose.model('Message', messageSchema);
+
+var mongoMessage;
+
+Message.findOne().exec(function(error, messageDoc){
+    mongoMessage = messageDoc.message;
+});
+
+app.use(express.static(__dirname +"/public"));
+
+app.get("/partials/:partialPath", function(req, res){
+    res.render("partials/" + req.params.partialPath);
+});
+
+app.get("*",function(req,res){
+    //res.render("index");
+    res.render("index",{mongoMessage:mongoMessage});
+});
+
+var port = process.env.PORT || 3030;
 app.listen(port);
 
 console.log("Listening on port " + port + "...");

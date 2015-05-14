@@ -61,7 +61,7 @@ app.get("/partials/:partialPath", function(req, res){
 
 app.get("*",function(req,res){
     //res.render("index");
-    res.render("index",{mongoMessage:mongoMessage});
+    res.render("index");
 });
 
 var port = process.env.PORT || 3030;

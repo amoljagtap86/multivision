@@ -16,3 +16,9 @@ footer {
 .navbar-inverse {
   height: 70px;
 }
+.navbar-form .form-group {
+  margin-left: 10px;
+}
+.navbar-form button {
+  margin-left: 10px;
+}

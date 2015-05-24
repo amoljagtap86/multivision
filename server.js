@@ -2,69 +2,20 @@
  * Created by aj9682 on 5/12/2015.
  */
 var express = require("express"),
-    stylus = require("stylus"),
-    logger = require("morgan"),
-    bodyParser = require("body-parser"),
     mongoose = require("mongoose");
 
 var env = process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 var app = express();
 
+var config = require("./server/config/config")[env];
 
-function compile(str, path){
-   return stylus(str).set("filename",path);
-}
+require("./server/config/express")(app, config);
 
-app.set("views",__dirname + "/server/views");
-app.set("view engine","jade");
-app.use(logger("dev"));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(stylus.middleware(
-    {
-    src: __dirname + "/public",
-        compile: compile
-    }
-));
+require("./server/config/mongoose")(config);
 
-if(env==="development"){
-    mongoose.connect("mongodb://localhost/multivision");
-}
-else {
-    mongoose.connect("mongodb://ajagtap:multivision@ds037252.mongolab.com:37252/multivision");
-}
+require("./server/config/route")(app);
 
-var db = mongoose.connection;
+app.listen(config.port);
 
-db.on("error",console.error.bind(console,"connection error..."));
-
-db.once("open",function(){
-    console.log("DB connection opened");
-});
-
-var messageSchema = mongoose.Schema({message: String});
-
-var Message = mongoose.model('Message', messageSchema);
-
-var mongoMessage;
-
-Message.findOne().exec(function(error, messageDoc){
-    mongoMessage = messageDoc.message;
-});
-
-app.use(express.static(__dirname +"/public"));
-
-app.get("/partials/*", function(req, res){
-    res.render("../../public/app/" + req.params[0]);
-});
-
-app.get("*",function(req,res){
-    //res.render("index");
-    res.render("index");
-});
-
-var port = process.env.PORT || 3030;
-app.listen(port);
-
-console.log("Listening on port " + port + "...");
+console.log("Listening on port " + config.port + "...");

@@ -7,6 +7,7 @@ module.exports = function(app){
 
     app.post("/login", function(req, res, next){
         var auth = passport.authenticate("local", function(err, user){
+            console.log("in authenticate: " + user);
             if(err){ return next(err);}
             if(!user){res.send({ success: false})}
             req.logIn(user, function(err){

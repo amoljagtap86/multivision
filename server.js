@@ -18,8 +18,10 @@ require("./server/config/mongoose")(config);
 
 var User = mongoose.model("User");
 passport.use(new LocalStrategy(function(username,password, done){
+    console.log("username: " + username);
     User.findOne({userName:username}).exec(function(err, user){
         if(user){
+            console.log("user: "+ user.userName);
             return done(null, user);
         }
         else{
@@ -31,6 +33,7 @@ passport.use(new LocalStrategy(function(username,password, done){
 
 passport.serializeUser(function(user, done){
     if(user){
+        console.log("serialize user id: " + user._id);
         done(null,user._id);
     }
 });
@@ -38,6 +41,7 @@ passport.serializeUser(function(user, done){
 passport.deserializeUser(function(id, done){
     User.findOne({_id: id}).exec(function(err, user){
         if(user){
+            console.log("deserialize user id: " + user._id);
             return done(null,user);
         }
         else{

@@ -3,7 +3,7 @@ var express = require("express"),
     stylus = require("stylus"),
     logger = require("morgan"),
     bodyParser = require("body-parser"),
-    cookieParser = require("cookie-parse"),
+    cookieParser = require("cookie-parser"),
     session = require("express-session"),
     passport = require("passport");
 
